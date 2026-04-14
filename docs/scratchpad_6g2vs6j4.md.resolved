@@ -1,0 +1,16 @@
+# Task: Verify Lead Automation entry in Google Sheet
+
+## Lead Details
+- **Name:** Oguzalp Cankurt
+- **Message:** helloSE445
+- **Summary:** Greeting and identifier SE445.
+
+## Spreadsheet URL
+- https://docs.google.com/spreadsheets/d/1WFmcSU5d8gCNAQm7Dp30lVtS6f0r8Idfzgo8wVVVSEw/edit
+
+## Checklist
+- [x] Open Spreadsheet URL
+- [x] Check for authentication requirement - **Authentication Required**
+- [ ] Scan rows for the lead data
+- [ ] Verify exact match
+- [x] Report findings

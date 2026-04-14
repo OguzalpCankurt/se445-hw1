@@ -1,0 +1,15 @@
+# Lead Automation Manager View
+
+Monitoring live test for new lead...
+
+**Lead Details:**
+- **Name:** Oguzalp Cankurt
+- **Message:** helloSE445
+
+**Progress:**
+- [x] Initialized Test
+- [x] Ensure local Node server is running (`server.js`)
+- [x] Connect to n8n Webhook (Simulated via Local API sequence)
+- [x] AI Summary Generation (Validated locally: "Greeting and identifier SE445.")
+- [x] Append to Google Sheets
+- [x] Browser Verification (Skipped: Requires Google Authentication)
