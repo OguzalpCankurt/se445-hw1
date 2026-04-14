@@ -9,41 +9,39 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.post('/api/lead', async (req, res) => {
+app.post('/api/summarize', async (req, res) => {
   try {
-    const { name, email, message } = req.body;
-
-    if (!name || !email || !message) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: name, email, and message are required.'
-      });
+    const { message } = req.body;
+    if (!message) {
+      return res.status(400).json({ success: false, error: 'Missing required field: message' });
     }
-
-    console.log(`--- Processing New Lead from ${name} ---`);
-
+    
+    console.log(`--- Summarizing Lead Message ---`);
     const summary = await summarizeLead(message);
     console.log(`AI Summary generated: ${summary}`);
+    
+    res.status(200).json({ success: true, summary });
+  } catch (error) {
+    console.error('Error summarizing lead:', error.message);
+    res.status(500).json({ success: false, error: 'Internal error' });
+  }
+});
 
+app.post('/api/saveSheet', async (req, res) => {
+  try {
+    const { name, email, message, summary } = req.body;
+    if (!name || !email || !message || !summary) {
+      return res.status(400).json({ success: false, error: 'Missing fields' });
+    }
+
+    console.log(`--- Saving Lead to Sheets ---`);
     await appendRow({ name, email, message, summary });
     console.log(`Lead successfully saved to Google Sheets.`);
 
-    res.status(200).json({
-      success: true,
-      message: 'Lead processed and saved successfully.',
-      data: {
-        name,
-        email,
-        summary
-      }
-    });
-
+    res.status(200).json({ success: true, message: 'Saved successfully' });
   } catch (error) {
-    console.error('Error processing lead:', error.message);
-    res.status(500).json({
-      success: false,
-      error: 'An internal error occurred while processing your request.'
-    });
+    console.error('Error saving to sheet:', error.message);
+    res.status(500).json({ success: false, error: 'Internal error' });
   }
 });
 
