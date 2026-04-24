@@ -45,6 +45,28 @@ app.post('/api/saveSheet', async (req, res) => {
   }
 });
 
+app.post('/webhook', async (req, res) => {
+  try {
+    const keys = Object.keys(req.body);
+    if (keys.length !== 3 || !keys.includes('name') || !keys.includes('email') || !keys.includes('message')) {
+      return res.status(400).json({ success: false, error: 'Payload must contain exactly three keys: name, email, message' });
+    }
+    const { name, email, message } = req.body;
+
+    console.log(`--- Processing Webhook POST ---`);
+    const summary = await summarizeLead(message);
+    console.log(`AI Summary generated: ${summary}`);
+    
+    await appendRow({ name, email, message, summary });
+    console.log(`Webhook process success. Lead successfully saved to Google Sheets.`);
+
+    res.status(200).json({ success: true, message: 'Processed webhook successfully' });
+  } catch (error) {
+    console.error('Error in webhook:', error.message);
+    res.status(500).json({ success: false, error: 'Internal error' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
