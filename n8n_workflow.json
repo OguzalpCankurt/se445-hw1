@@ -60,6 +60,14 @@
             {
               "name": "summary",
               "value": "={{ $json.summary }}"
+            },
+            {
+              "name": "intent",
+              "value": "={{ $json.intent }}"
+            },
+            {
+              "name": "urgency",
+              "value": "={{ $json.urgency }}"
             }
           ]
         },

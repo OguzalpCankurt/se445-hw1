@@ -17,10 +17,10 @@ app.post('/api/summarize', async (req, res) => {
     }
     
     console.log(`--- Summarizing Lead Message ---`);
-    const summary = await summarizeLead(message);
-    console.log(`AI Summary generated: ${summary}`);
+    const { summary, intent, urgency } = await summarizeLead(message);
+    console.log(`AI Summary generated: ${summary}, Intent: ${intent}, Urgency: ${urgency}`);
     
-    res.status(200).json({ success: true, summary });
+    res.status(200).json({ success: true, summary, intent, urgency });
   } catch (error) {
     console.error('Error summarizing lead:', error.message);
     res.status(500).json({ success: false, error: 'Internal error' });
@@ -29,16 +29,19 @@ app.post('/api/summarize', async (req, res) => {
 
 app.post('/api/saveSheet', async (req, res) => {
   try {
-    const { name, email, message, summary } = req.body;
-    if (!name || !email || !message || !summary) {
-      return res.status(400).json({ success: false, error: 'Missing fields' });
+    const { name, email, message, summary, intent, urgency } = req.body;
+    
+    let validation_status = 'Valid';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!name || !email || !message || !emailRegex.test(email)) {
+      validation_status = 'Invalid';
     }
 
     console.log(`--- Saving Lead to Sheets ---`);
-    await appendRow({ name, email, message, summary });
+    await appendRow({ name, email, message, summary, intent, urgency, validation_status });
     console.log(`Lead successfully saved to Google Sheets.`);
 
-    res.status(200).json({ success: true, message: 'Saved successfully' });
+    res.status(200).json({ success: true, message: 'Saved successfully', validation_status });
   } catch (error) {
     console.error('Error saving to sheet:', error.message);
     res.status(500).json({ success: false, error: 'Internal error' });
@@ -47,20 +50,22 @@ app.post('/api/saveSheet', async (req, res) => {
 
 app.post('/webhook', async (req, res) => {
   try {
-    const keys = Object.keys(req.body);
-    if (keys.length !== 3 || !keys.includes('name') || !keys.includes('email') || !keys.includes('message')) {
-      return res.status(400).json({ success: false, error: 'Payload must contain exactly three keys: name, email, message' });
-    }
     const { name, email, message } = req.body;
 
+    let validation_status = 'Valid';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!name || !email || !message || !emailRegex.test(email)) {
+      validation_status = 'Invalid';
+    }
+
     console.log(`--- Processing Webhook POST ---`);
-    const summary = await summarizeLead(message);
-    console.log(`AI Summary generated: ${summary}`);
+    const { summary, intent, urgency } = await summarizeLead(message || "No message provided");
+    console.log(`AI Summary generated: ${summary}, Intent: ${intent}, Urgency: ${urgency}`);
     
-    await appendRow({ name, email, message, summary });
+    await appendRow({ name, email, message, summary, intent, urgency, validation_status });
     console.log(`Webhook process success. Lead successfully saved to Google Sheets.`);
 
-    res.status(200).json({ success: true, message: 'Processed webhook successfully' });
+    res.status(200).json({ success: true, message: 'Processed webhook successfully', validation_status });
   } catch (error) {
     console.error('Error in webhook:', error.message);
     res.status(500).json({ success: false, error: 'Internal error' });

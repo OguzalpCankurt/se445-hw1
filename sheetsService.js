@@ -5,7 +5,7 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-async function appendRow({ name, email, message, summary }) {
+async function appendRow({ name, email, message, summary, intent, urgency, validation_status }) {
   try {
     const authClient = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: authClient });
@@ -16,7 +16,7 @@ async function appendRow({ name, email, message, summary }) {
       throw new Error('Missing GOOGLE_SHEET_ID in environment variables.');
     }
 
-    const range = 'Sayfa1!A:E';
+    const range = 'Sayfa1!A:H';
 
     const request = {
       spreadsheetId,
@@ -25,7 +25,7 @@ async function appendRow({ name, email, message, summary }) {
       insertDataOption: 'INSERT_ROWS',
       resource: {
         values: [
-          [name, email, message, summary, new Date().toISOString()]
+          [name, email, message, summary, validation_status, intent, urgency, new Date().toISOString()]
         ],
       },
     };
